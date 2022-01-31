@@ -9,11 +9,11 @@ from pynput.mouse import Button, Controller
 #定义鼠标事件
 
 def mouseClick(clickTimes,operateType,imgFilePath,reTry):
-    breakTry=20;
+
     #循环一次
     if reTry == 1:
         #一直循环直到break
-        while breakTry:
+        while True:
 
             # 1.获取两张图的所有像素点的rgb
             # 2.对比两张图的全部像素点是否相同（或者偏差在固定范围内）
@@ -23,8 +23,8 @@ def mouseClick(clickTimes,operateType,imgFilePath,reTry):
             #locateCenterOnScreen()函数会返回图片在屏幕上的中心XY轴坐标值：
             # confidence=0.9 精确度设为0.9更科学，既能保证不会找错对象，又不会因为默认的精确度太苛刻，明明对象存在代码却找不到而返回None。
             location = pyautogui.locateCenterOnScreen(imgFilePath, confidence=0.9)
-            print(location)
-            breakTry -= 1
+
+
             if location is not None:
                 # x,y为鼠标坐标，
                 # lick为点击几次，
@@ -34,15 +34,30 @@ def mouseClick(clickTimes,operateType,imgFilePath,reTry):
                 # button有几个选项默认是左键，- ``LEFT``, ``MIDDLE``, ``RIGHT``, ``PRIMARY``, or ``SECONDARY``.
                 pyautogui.click(location.x,location.y,clicks=clickTimes,interval=0.15,duration=0.1,button=operateType)
                 break
+            pyautogui.scroll(-100)
+            print("找不到数据，自动向下滚动300")
             print("未找到匹配图片,0.1秒后重试")
             #暂缓0.1s，为了保护系统，免得因为死循环导致内存溢出
             time.sleep(0.1)
     elif reTry == -1:
         while True:
-            location = pyautogui.locateCenterOnScreen(imgFilePath,confidence=0.9)
+            location = pyautogui.locateCenterOnScreen(imgFilePath,confidence=0.85)
+            locationCheckAll = pyautogui.locateCenterOnScreen("all.png", confidence=0.9)
+            locationNextpage = pyautogui.locateCenterOnScreen("nextpage.png", confidence=0.9)
             if location is not None:
                 print(location)
-                pyautogui.click(location.x,location.y,clicks=clickTimes,interval=0.2,duration=0.2,button=operateType)
+                pyautogui.click(location.x,location.y,clicks=clickTimes,interval=0.2,duration=0.05,button=operateType)
+            else:
+
+                if locationCheckAll is not None:
+                    pyautogui.click(locationCheckAll.x, locationCheckAll.y, clicks=1, interval=0.15, duration=0.1,button="left")
+                elif locationNextpage is not None:
+                    pyautogui.click(locationNextpage.x, locationNextpage.y, clicks=1, interval=0.15, duration=0.1,button="left")
+                    pyautogui.scroll(300)
+                else:
+                    pyautogui.scroll(-100)
+            # pyautogui.scroll(-100)
+            print("找不到数据，自动向下滚动300")
             time.sleep(0.1)
     elif reTry > 1:
         i = 1
@@ -53,6 +68,8 @@ def mouseClick(clickTimes,operateType,imgFilePath,reTry):
                 pyautogui.click(location.x,location.y,clicks=clickTimes,interval=0.2,duration=0.2,button=operateType)
                 print("重复")
                 i += 1
+            pyautogui.scroll(-100)
+            print("找不到数据，自动向下滚动300")
             time.sleep(0.1)
 
 
